@@ -7,9 +7,11 @@ class TweetBot {
   * secrets: object with "consumer_key", "consumer_secret", "access_token_key"
   *          and "access_token_secret"
   * */
-  constructor ({secrets}) {
+  constructor ({secrets, verbose}) {
     this.client = new Twitter(secrets);
     this.preventTweet = false;
+    this.verbose = verbose;
+    this.log = (msg) => this.verbose ? console.log(msg) : null;
   }
 
   /*
@@ -23,14 +25,15 @@ class TweetBot {
       const logMsg = `Prevented tweet`
         + (this.status ? ` "${this.status}"` : '')
         + (mediaPath ? ` with media ${mediaPath}` : '');
-      return console.log(logMsg);
+      return this.log(logMsg);
     }
 
     let mediaPromise;
     if (mediaPath) {
       const mediaUploader = new MediaUploader({
         client: this.client,
-        mediaPath: mediaPath
+        mediaPath: mediaPath,
+        verbose: this.verbose
       });
       mediaPromise = mediaUploader.upload()
     } else {
@@ -38,21 +41,21 @@ class TweetBot {
     }
     mediaPromise.then(mediaId => {
       this.mediaId = mediaId;
-      this.updateStatus();
+      this._updateStatus();
     })
   }
 
-  updateStatus () {
+  _updateStatus () {
     const postOptions = {
       status: this.status,
       media_ids: this.mediaId
     };
-    console.log(postOptions);
-    console.log(`Tweeting "${postOptions.status}"`);
-    if (postOptions.media_ids) console.log(` with media ${postOptions.media_ids}`);
+    this.log(postOptions);
+    this.log(`Tweeting "${postOptions.status}"`);
+    if (postOptions.media_ids) this.log(` with media ${postOptions.media_ids}`);
     this.client.post('statuses/update', postOptions, (error) => {
-      if (error) return console.trace(error);
-      console.log(`Tweeting "${postOptions.status}" ✓`);
+      if (error) return this.log(error);
+      this.log(`Tweeting "${postOptions.status}" ✓`);
     });
   }
 }
