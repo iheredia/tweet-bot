@@ -2,7 +2,7 @@
 
 Bot that uses Twitter api's to tweet text strings and gifs
 
-[![NPM](https://nodei.co/npm/@iheredia/tweet-bot.png?mini=true)](https://nodei.co/npm/@iheredia/tweet-bot.png)
+[![NPM](https://nodei.co/npm/@iheredia/tweet-bot.png?mini=true)](https://www.npmjs.com/package/@iheredia/tweet-bot)
 
 ## Installation
 
