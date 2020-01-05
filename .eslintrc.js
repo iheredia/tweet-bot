@@ -6,11 +6,13 @@ module.exports = {
   "extends": [
     "eslint:recommended",
     "plugin:jest/recommended",
+    "plugin:jsdoc/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2018
   },
   "plugins": [
     "jest",
+    "jsdoc"
   ],
 };
