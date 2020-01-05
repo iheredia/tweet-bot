@@ -11,7 +11,7 @@ class TweetBot {
   * */
   constructor ({secrets, verbose}) {
     this.client = new Twitter(secrets);
-    this.clientPost = util.promisify(this.client.post);
+    this.client.postPromise = util.promisify(this.client.post);
     this.verbose = verbose;
     this.logger = new Logger({ verbose });
   }
@@ -27,7 +27,7 @@ class TweetBot {
     };
     this.logger.log(`Tweeting${ postOptions.status ? ` "${postOptions.status}"` : ''}${ postOptions.media_ids ? ` with media ${mediaPath}` : ''}`);
     try {
-      await this.clientPost('statuses/update', postOptions);
+      await this.client.postPromise('statuses/update', postOptions);
     } catch (error) {
       this.logger.log(error);
       throw error;
