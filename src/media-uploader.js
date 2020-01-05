@@ -1,5 +1,6 @@
 const fs = require('fs');
 const ChunkSize = 4 * 1024 * 1024;
+const Logger = require('./logger');
 
 class MediaUploader {
   /*
@@ -10,7 +11,7 @@ class MediaUploader {
   constructor ({client, mediaPath, verbose}) {
     this.client = client;
     this.mediaPath = mediaPath;
-    this.log = (msg) => verbose ? console.log(msg) : null;
+    this.logger = new Logger({ verbose });
   }
 
   upload () {
@@ -21,7 +22,7 @@ class MediaUploader {
       this.fileSize = fs.statSync(this.mediaPath).size;
       this.fileSync = fs.openSync(this.mediaPath, 'r');
 
-      this.log(`Starting upload of ${this.mediaPath}`);
+      this.logger.log(`Starting upload of ${this.mediaPath}`);
       const uploadParams = {
         command: 'INIT',
         total_bytes: this.fileSize,
@@ -30,8 +31,8 @@ class MediaUploader {
       };
       this.client.post('media/upload', uploadParams, (error, data) => {
         if (error) {
-          this.log(data);
-          this.log(error);
+          this.logger.log(data);
+          this.logger.log(error);
           this.mediaReject(error, data);
         }
         this.mediaId = data['media_id_string'];
@@ -43,7 +44,7 @@ class MediaUploader {
   }
 
   _appendUpload () {
-    this.log(`Uploading ${this.mediaPath}. Chunk ${this.segmentIndex+1} of ${this.totalChunks}`);
+    this.logger.log(`Uploading ${this.mediaPath}. Chunk ${this.segmentIndex+1} of ${this.totalChunks}`);
     const uploadParams = {
       command: 'APPEND',
       media_id: this.mediaId,
@@ -52,7 +53,7 @@ class MediaUploader {
     };
     this.client.post('media/upload', uploadParams, (error) => {
       if (error) {
-        this.log(error);
+        this.logger.log(error);
         this.mediaReject(error);
       }
       this.segmentIndex++;
@@ -67,14 +68,14 @@ class MediaUploader {
   }
 
   _endUpload () {
-    this.log(`${this.mediaPath} uploaded with id ${this.mediaId}`);
+    this.logger.log(`${this.mediaPath} uploaded with id ${this.mediaId}`);
     const uploadParams = {
       command: 'FINALIZE',
       media_id: this.mediaId
     };
     this.client.post('media/upload', uploadParams, (error) => {
       if (error) {
-        this.log(error);
+        this.logger.log(error);
         this.mediaReject(error);
       }
       this.mediaResolve(this.mediaId)

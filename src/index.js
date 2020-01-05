@@ -1,5 +1,6 @@
 const Twitter = require('twitter');
 const MediaUploader = require('./media-uploader');
+const Logger = require('./logger');
 
 class TweetBot {
 
@@ -10,7 +11,7 @@ class TweetBot {
   constructor ({secrets, verbose}) {
     this.client = new Twitter(secrets);
     this.verbose = verbose;
-    this.log = (msg) => this.verbose ? console.log(msg) : null;
+    this.logger = new Logger({ verbose });
   }
 
   /*
@@ -22,12 +23,10 @@ class TweetBot {
       status: status || '',
       media_ids: this._uploadMedia(mediaPath)
     };
-    this.log(postOptions);
-    this.log(`Tweeting "${postOptions.status}"`);
-    if (postOptions.media_ids) this.log(` with media ${postOptions.media_ids}`);
+    this.logger.log(`Tweeting "${postOptions.status}${ postOptions.media_ids ? ` with media ${mediaPath}` : ''}"`);
     this.client.post('statuses/update', postOptions, (error) => {
-      if (error) return this.log(error);
-      this.log(`Tweeting "${postOptions.status}" ✓`);
+      if (error) return this.logger.log(error);
+      this.logger.log(`Tweeted "${postOptions.status}" ✓`);
     });
   }
 
