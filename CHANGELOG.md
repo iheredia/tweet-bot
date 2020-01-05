@@ -3,6 +3,7 @@
 ## Next release
 
 - Add CHANGELOG file
+- Add jest and unit tests for features until now
 
 ## [0.0.5](https://github.com/iheredia/tweet-bot/releases/tag/0.0.5) 2019-07-21
 
